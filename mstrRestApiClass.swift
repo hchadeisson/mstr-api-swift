@@ -3,7 +3,6 @@
 //  ARKitImageRecognition
 //
 //  Created by Chadeisson, Henri-Francois on 11/05/2018.
-//  Copyright © 2018 Jayven Nhan. All rights reserved.
 //
 
 import Foundation
@@ -30,21 +29,25 @@ class mstrRestApiClass
 		self.setUserName(userName: userName)
 	}
 	
+	// Full URL to your MicroStrategy Library API. Example : https://mobiledossier.microstrategy.com/MicroStrategyLibrary/api
 	func setBaseUrl(baseUrl: String)
 	{
 		self.baseUrl = baseUrl
 	}
 	
+	// Dataset ID to be used for Push API functions
 	func setDatasetId(datasetId: String)
 	{
 		self.datasetId = datasetId
 	}
 	
+	// Project ID containing the cubes to be queried
 	func setProjectId(projectId: String)
 	{
 		self.projectId = projectId
 	}
 	
+	// API Username
 	func setUserName(userName: String)
 	{
 		if (userName == "")
@@ -57,6 +60,7 @@ class mstrRestApiClass
 		}
 	}
 	
+	// API Password
 	func setPassword(password: String)
 	{
 		if (password == "")
@@ -73,6 +77,9 @@ class mstrRestApiClass
 	{
 		return self.password
 	}
+	
+	// Authenticate to the REST API Server using provided login, password and login mode.
+	// Function used is documented here : https://mobiledossier.microstrategy.com/MicroStrategyLibrary/api-docs/index.html#!/Authentication/postLogin
 	func Authentication_postAuthLogin(password: String, loginMode: Int)
 	{
 		let loginPayload = "{\"username\": \"\(self.userName)\",\"password\": \"\(password)\",\"loginMode\": \(loginMode)}"
@@ -120,6 +127,7 @@ class mstrRestApiClass
 		task.resume()
 	}
 	
+	// List available projects with pre-authenticated user
 	func Projects_getProjects()
 	{
 		let headers =
@@ -152,6 +160,7 @@ class mstrRestApiClass
 		dataTask.resume()
 	}
 
+	// Extract data from a cube. API documented here : https://mobiledossier.microstrategy.com/MicroStrategyLibrary/api-docs/index.html#!/Cubes/createCubeInstance
 	func Cube_postCreateCubeInstance(payload: String, projectId: String, datasetId: String, callback: @escaping (_ result: [String : Any]?) -> Void)
 	{
 		let request = NSMutableURLRequest(url: NSURL(string: "\(self.baseUrl)/cubes/\(datasetId)/instances?limit=1000")! as URL)
@@ -176,7 +185,6 @@ class mstrRestApiClass
 			if let httpStatus = response as? HTTPURLResponse, httpStatus.statusCode != 200 // check for http errors
 			{
 				print("statusCode should be 200, but is \(httpStatus.statusCode)")
-//				print("response = \(String(describing: response))")
 			}
 			
 			_ = response! as! HTTPURLResponse
@@ -190,6 +198,8 @@ class mstrRestApiClass
 		task.resume()
 	}
 
+	// Create a Push cube, to be used to send data to MicroStrategy with API calls
+	// Documented here : https://mobiledossier.microstrategy.com/MicroStrategyLibrary/api-docs/index.html#!/Datasets/createDICube
 	func Dataset_postCreateDICube(payload: String, projectId: String, datasetId: String, tableName: String, updatePolicy: String)
 	{
 		let request = NSMutableURLRequest(url: NSURL(string: "\(self.baseUrl)/datasets")! as URL,
@@ -224,6 +234,8 @@ class mstrRestApiClass
 		task.resume()
 	}
 	
+	// Send data to an existing API enabled cube.
+	// Documented here : https://mobiledossier.microstrategy.com/MicroStrategyLibrary/api-docs/index.html#!/Datasets/updateDICube
 	func Dataset_patchUpdateDICube(payload: String, projectId: String, datasetId: String, tableName: String, updatePolicy: String)
 	{
 		print(payload)
